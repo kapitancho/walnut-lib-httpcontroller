@@ -9,6 +9,7 @@ use ReflectionObject;
 use Throwable;
 use Walnut\Lib\HttpMapper\ResponseBuilder;
 use Walnut\Lib\HttpMapper\ResponseRenderer;
+use Walnut\Lib\HttpMapper\ViewRenderer;
 
 /**
  * @package Walnut\Lib\HttpController
@@ -16,9 +17,10 @@ use Walnut\Lib\HttpMapper\ResponseRenderer;
 final class ControllerAutoWireHelper implements ControllerHelper {
 
 	public function __construct(
-		private /*readonly*/ ResponseBuilder $responseBuilder,
-		private /*readonly*/ ControllerReflector $controllerReflector,
-		private /*readonly*/ ResponseRenderer $responseRenderer
+		private readonly ResponseBuilder $responseBuilder,
+		private readonly ControllerReflector $controllerReflector,
+		private readonly ResponseRenderer $responseRenderer,
+		private readonly ViewRenderer $viewRenderer,
 	) {}
 
 	/**
@@ -62,7 +64,7 @@ final class ControllerAutoWireHelper implements ControllerHelper {
 						/**
 						 * @var mixed
 						 */
-						$result = $exMethod->invoke($targetController, $rrex);
+						$result = $exMethod->invoke($targetController, $rrex, $request);
 
 						$responseMapper = $this->controllerReflector->getResponseMapper($exMethod, $targetController);
 						$found = true;
@@ -81,16 +83,17 @@ final class ControllerAutoWireHelper implements ControllerHelper {
 			}
 
 			$responseMapper ??= $this->controllerReflector->getResponseMapper($method, $targetController);
-			if ($responseMapper) {
+			if ($responseMapper && !($result instanceof ResponseInterface)) {
 				$result = $responseMapper->mapValue($result,
 					$this->responseBuilder,
-					$this->responseRenderer
+					$this->responseRenderer,
+					$this->viewRenderer,
 				);
 			}
 			return ($result instanceof ResponseInterface) ? $result :
 				throw new ControllerHelperException("Invalid response detected");
 		} catch (ReflectionException $rex) {
-			throw new ControllerHelperException("Invalid controller", previous: $rex);
+			throw new ControllerHelperException("Invalid controller:" . $rex->getMessage(), previous: $rex);
 		}
 	}
 

@@ -8,6 +8,7 @@ use ReflectionException;
 use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionObject;
+use ReflectionEnum;
 use Walnut\Lib\DataType\DataImporter;
 use Walnut\Lib\DataType\Exception\InvalidData;
 use Walnut\Lib\HttpMapper\Attribute\ErrorHandler;
@@ -21,7 +22,7 @@ use Walnut\Lib\HttpMapper\ResponseMapper;
 final class ControllerReflector {
 
 	public function __construct(
-		private /*readonly*/ DataImporter $openApiImporter
+		private readonly DataImporter $openApiImporter
 	) {}
 
 	/**
@@ -90,13 +91,16 @@ final class ControllerReflector {
 				$n = $q[0]->newInstance();
 				$paramValue = $n->mapValue($request, $parameter->getName(), $methodArgs);
 
-				if (is_array($paramValue)) {
-					$type = $parameter->getType();
-					if (($type instanceof ReflectionNamedType) && !$type->isBuiltin()) {
-						/**
-						 * @var class-string $typeName
-						 */
-						$typeName = $type->getName();
+				$type = $parameter->getType();
+				if (($type instanceof ReflectionNamedType) && !$type->isBuiltin()) {
+					/**
+					 * @var class-string $typeName
+					 */
+					$typeName = $type->getName();
+					if (enum_exists($typeName)) {
+						$paramValue = $typeName::tryFrom($paramValue) ??
+							$parameter->getDefaultValue() ?? null;
+					} else {
 						$paramValue = $this->openApiImporter->import(
 							(object)json_decode(json_encode($paramValue)),
 							$typeName
