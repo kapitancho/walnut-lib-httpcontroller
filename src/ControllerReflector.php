@@ -9,8 +9,8 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionObject;
 use ReflectionEnum;
-use Walnut\Lib\DataType\DataImporter;
 use Walnut\Lib\DataType\Exception\InvalidData;
+use Walnut\Lib\DataType\Importer\ClassHydrator;
 use Walnut\Lib\HttpMapper\Attribute\ErrorHandler;
 use Walnut\Lib\HttpMapper\RequestMapper;
 use Walnut\Lib\HttpMapper\RequestMatch;
@@ -22,7 +22,7 @@ use Walnut\Lib\HttpMapper\ResponseMapper;
 final class ControllerReflector {
 
 	public function __construct(
-		private readonly DataImporter $openApiImporter
+		private readonly ClassHydrator $classHydrator
 	) {}
 
 	/**
@@ -101,7 +101,7 @@ final class ControllerReflector {
 						$paramValue = $typeName::tryFrom($paramValue) ??
 							$parameter->getDefaultValue() ?? null;
 					} else {
-						$paramValue = $this->openApiImporter->import(
+						$paramValue = $this->classHydrator->importValue(
 							(object)json_decode(json_encode($paramValue)),
 							$typeName
 						);
