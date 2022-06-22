@@ -14,7 +14,7 @@
 	"require": {
 		"psr/http-message": "^1.0.1",
 		"psr/http-server-handler": ">=1.0.1",
-		"walnut/lib_httpmapper": "^0.0.4",
+		"walnut/lib_httpmapper": "^0.0.5",
 		"walnut/lib_datatype_importer": "^0.0.6"
 	},
 	"require-dev": {
