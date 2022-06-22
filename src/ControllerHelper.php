@@ -2,18 +2,15 @@
 
 namespace Walnut\Lib\HttpController;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * @package Walnut\Lib\HttpController
  */
 interface ControllerHelper {
 	/**
-	 * @param ServerRequestInterface $request
 	 * @param object $targetController
-	 * @return ResponseInterface
-	 * @throws ControllerException|ControllerHelperException
+	 * @return RequestHandlerInterface
 	 */
-	public function wire(ServerRequestInterface $request, object $targetController): ResponseInterface;
+	public function wire(object $targetController): RequestHandlerInterface;
 }
