@@ -15,7 +15,7 @@
 		"psr/http-message": "^1.0.1",
 		"psr/http-server-handler": ">=1.0.1",
 		"walnut/lib_httpmapper": "^0.0.6",
-		"walnut/lib_datatype_importer": "^0.0.8"
+		"walnut/lib_datatype_importer": "^0.0.9"
 	},
 	"require-dev": {
 		"vimeo/psalm": "^4.23.0",
